@@ -5,8 +5,9 @@ require __DIR__ . '/includes/auth.php';
 
 $q = trim($_GET['q'] ?? '');
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-$matches = []; $current = null; $error = '';
+$matches = []; $current = null; $error = ''; $allSongs = [];
 try {
+    $allSongs = db()->query('SELECT id, title, artist FROM songs ORDER BY title LIMIT 500')->fetchAll();
     if ($q !== '') {
         if (db_driver() === 'pgsql') {
             $st = db()->prepare("SELECT id, title, artist FROM songs WHERE title ILIKE ? OR artist ILIKE ? ORDER BY title LIMIT 50");
@@ -66,6 +67,22 @@ $title = $current ? $current['title'] : 'Songbook'; include __DIR__ . '/includes
       <?php endif; ?>
     <?php endif; ?>
   </div>
+
+  <?php if ($allSongs): ?>
+  <div class="card no-print">
+    <h3 style="margin:0 0 8px;text-align:center">All songs (A–Z)</h3>
+    <div class="songlist">
+      <?php $letter = ''; foreach ($allSongs as $s): ?>
+        <?php $L = strtoupper(substr(trim($s['title']), 0, 1)); if ($L !== $letter): $letter = $L; ?>
+          <div class="az-letter"><?= e($letter) ?></div>
+        <?php endif; ?>
+        <a class="song-item <?= ($current && (int)$current['id'] === (int)$s['id']) ? 'active' : '' ?>" href="index.php?id=<?= (int)$s['id'] ?>">
+          <b><?= e($s['title']) ?></b><?= $s['artist'] !== '' ? '<br><small>' . e($s['artist']) . '</small>' : '' ?>
+        </a>
+      <?php endforeach; ?>
+    </div>
+  </div>
+  <?php endif; ?>
 
   <?php if ($current): ?>
   <div class="sheet centered">
