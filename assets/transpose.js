@@ -17,9 +17,14 @@ function isChordLine(line) {
   var toks = String(line).trim().split(/\s+/).filter(Boolean);
   if (!toks.length) return false;
   if (/^\[.*\]$/.test(String(line).trim())) return false;
+  if (isLabelLine(line)) return false;
   var hits = 0;
   for (var i = 0; i < toks.length; i++) if (isChordToken(toks[i])) hits++;
   return hits / toks.length >= 0.6;
+}
+// Short "Intro:" / "Verse 1:" style labels render as section headers.
+function isLabelLine(line) {
+  return /^[A-Za-z0-9][A-Za-z0-9 '\-()]{0,28}:$/.test(String(line).trim());
 }
 function transposeNote(note, steps) {
   var n = FLAT_TO_SHARP[note] || note;
@@ -54,9 +59,17 @@ function renderSong(content, steps) {
     if (!line.trim()) { html += '<div style="height:10px"></div>'; continue; }
     if (/^\[.*\]/.test(line.trim())) { html += '<div class="section">' + escHtml(line.trim()) + '</div>'; continue; }
     var next = (i + 1 < lines.length) ? lines[i + 1] : '';
-    if (isChordLine(line) && next.trim() && !isChordLine(next) && !/^\[.*\]/.test(next.trim())) {
-      html += '<div class="line"><div class="chords">' + escHtml(transposeChordLine(line, steps)) + '</div><div class="lyrics">' + escHtml(next) + '</div></div>';
-      i++;
+    if (isChordLine(line)) {
+      // Standalone chord lines (Intro / instrumental, no lyric below) must
+      // still transpose — render them as a chords-only row.
+      if (next.trim() && !isChordLine(next) && !/^\[.*\]/.test(next.trim()) && !isLabelLine(next)) {
+        html += '<div class="line"><div class="chords">' + escHtml(transposeChordLine(line, steps)) + '</div><div class="lyrics">' + escHtml(next) + '</div></div>';
+        i++;
+      } else {
+        html += '<div class="line"><div class="chords">' + escHtml(transposeChordLine(line, steps)) + '</div><div class="lyrics"></div></div>';
+      }
+    } else if (isLabelLine(line)) {
+      html += '<div class="section">' + escHtml(line.trim()) + '</div>';
     } else {
       html += '<div class="line"><div class="chords"></div><div class="lyrics">' + escHtml(line) + '</div></div>';
     }
