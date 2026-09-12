@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $title = 'Install'; include __DIR__ . '/includes/header.php';
 ?>
 <div class="card" style="max-width:520px;margin:20px auto;">
-  <p class="hint"><b>Run once</b>: creates the <code class="inline">songs</code> table in your <?= e(db_driver() === 'pgsql' ? 'Neon Postgres' : 'MySQL') ?> database. Afterwards <b>delete this file</b>.</p>
+  <p class="hint"><b>Run once</b>: creates the <code class="inline">songs</code> + <code class="inline">playlists</code> tables in your <?= e(db_driver() === 'pgsql' ? 'Neon Postgres' : 'MySQL') ?> database. Safe to re-run (never deletes data). Afterwards <b>delete this file</b>.</p>
   <?php if ($msg): ?><div class="flash"><?= e($msg) ?></div><?php endif; ?>
   <?php if (!$done): ?>
   <form method="post">
