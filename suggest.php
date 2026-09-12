@@ -39,7 +39,7 @@ try {
                 'id' => (int)$r['id'],
                 'title' => $r['title'],
                 'sub' => $r['artist'] ?? '',
-                'url' => 'index.php?id=' . (int)$r['id'],
+                'url' => 'song.php?id=' . (int)$r['id'],
             ];
         }
         echo json_encode($out);
