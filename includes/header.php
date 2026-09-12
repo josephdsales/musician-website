@@ -12,6 +12,7 @@ $admin = is_admin();
 <title><?= e($title) ?> | <?= e(APP_NAME) ?></title>
 <link rel="stylesheet" href="assets/style.css">
 <script defer src="assets/transpose.js"></script>
+<script defer src="assets/autocomplete.js"></script>
 </head>
 <body>
 <header class="topbar">
