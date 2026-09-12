@@ -19,9 +19,11 @@ $admin = is_admin();
     <a class="brand" href="index.php">🎸 <?= e(APP_NAME) ?></a>
     <nav class="nav">
       <a href="index.php">Songs</a>
+      <a href="playlists.php">Playlists</a>
       <?php if ($admin): ?>
         <a href="dashboard.php">Dashboard</a>
         <a href="admin_songs.php">Manage Songs</a>
+        <a href="admin_playlists.php">Playlists</a>
         <a href="logout.php">Logout</a>
       <?php else: ?>
         <a href="login.php">Admin</a>
