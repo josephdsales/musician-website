@@ -68,6 +68,24 @@ code.inline { background: #eef2ff; padding: 1px 6px; border-radius: 6px; }
 .sheet.centered .line { display: inline-block; text-align: left; min-width: min(100%, 420px); }
 .sheet.centered .section { text-align: center; }
 
+/* --- Live search suggestions --- */
+.suggest-wrap { position: relative; flex: 1; min-width: 200px; display: flex; }
+.suggest-wrap input { flex: 1; min-width: 0; }
+.suggest-box { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #fff; border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 8px 24px rgba(16,24,40,.12); z-index: 50; overflow: hidden; text-align: left; }
+.suggest-item { display: block; padding: 10px 12px; text-decoration: none; color: var(--ink); border-bottom: 1px solid var(--line); }
+.suggest-item:last-child { border-bottom: none; }
+.suggest-item small { color: var(--muted); }
+.suggest-item:hover, .suggest-item.active { background: #eef2ff; }
+.suggest-empty { padding: 10px 12px; color: var(--muted); font-size: .9rem; }
+
+/* --- A–Z song directory --- */
+.songlist { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; max-height: 50vh; overflow: auto; }
+.song-item { display: block; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; text-decoration: none; color: var(--ink); background: #fff; }
+.song-item:hover { border-color: var(--brand); }
+.song-item.active { border-color: var(--brand); background: #eef2ff; }
+.song-item small { color: var(--muted); }
+.az-letter { font-weight: 800; color: var(--brand-d); margin: 10px 0 2px; font-size: 1.05rem; border-bottom: 1px solid var(--line); }
+
 @media print {
   .topbar, .footer, .btnrow, .no-print { display: none !important; }
   body { background: #fff; }
