@@ -18,7 +18,6 @@ $title = 'Admin Login'; include __DIR__ . '/includes/header.php';
 ?>
 <div class="card" style="max-width:480px;margin:20px auto;">
   <h2 style="margin-top:0">Admin login 🔐</h2>
-  <p class="hint">Password-only. Default is <code class="inline">123</code> — on Render set <code class="inline">ADMIN_PASSWORD</code> env var to change it.</p>
   <?php if ($error): ?><p style="color:#b91c1c"><b><?= e($error) ?></b></p><?php endif; ?>
   <form method="post">
     <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
