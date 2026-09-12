@@ -1,0 +1,14 @@
+# Render Blueprint: Docker web service + external Neon Postgres.
+# Same pattern as cba-system, but the database lives on Neon
+# (paste your Neon connection string as DATABASE_URL in Render).
+services:
+  - type: web
+    name: musician-website
+    runtime: docker
+    plan: free
+    healthCheckPath: /index.php
+    envVars:
+      - key: DATABASE_URL
+        sync: false # Neon connection string, e.g. postgresql://user:pass@ep-xxx.neon.tech/songbook?sslmode=require
+      - key: ADMIN_PASSWORD
+        sync: false # admin password (default '123' if empty)
