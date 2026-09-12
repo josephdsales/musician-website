@@ -46,7 +46,9 @@ $title = $current ? $current['title'] : 'Songbook'; include __DIR__ . '/includes
 
   <div class="card no-print">
     <form method="get" class="pickrow">
-      <input type="text" name="q" placeholder="Type song title or artist..." value="<?= e($q) ?>" autofocus style="flex:1;min-width:200px">
+      <span class="suggest-wrap">
+        <input type="text" name="q" data-suggest="song" placeholder="Type song title or artist..." value="<?= e($q) ?>" autofocus>
+      </span>
       <button class="btn small" type="submit">Search</button>
       <?php if ($q !== ''): ?><a class="btn small ghost" href="index.php">Clear</a><?php endif; ?>
     </form>

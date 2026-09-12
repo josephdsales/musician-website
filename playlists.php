@@ -4,9 +4,20 @@ require __DIR__ . '/includes/config.php';
 require __DIR__ . '/includes/auth.php';
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+$q = trim($_GET['q'] ?? '');
 $playlists = []; $plist = null; $items = []; $error = '';
 try {
-    $playlists = db()->query('SELECT p.*, (SELECT COUNT(*) FROM playlist_songs ps WHERE ps.playlist_id=p.id) AS song_count FROM playlists p ORDER BY p.title')->fetchAll();
+    if ($q !== '') {
+        if (db_driver() === 'pgsql') {
+            $st = db()->prepare("SELECT p.*, (SELECT COUNT(*) FROM playlist_songs ps WHERE ps.playlist_id=p.id) AS song_count FROM playlists p WHERE p.title ILIKE ? ORDER BY p.title LIMIT 50");
+        } else {
+            $st = db()->prepare("SELECT p.*, (SELECT COUNT(*) FROM playlist_songs ps WHERE ps.playlist_id=p.id) AS song_count FROM playlists p WHERE p.title LIKE ? ORDER BY p.title LIMIT 50");
+        }
+        $st->execute(["%$q%"]);
+        $playlists = $st->fetchAll();
+    } else {
+        $playlists = db()->query('SELECT p.*, (SELECT COUNT(*) FROM playlist_songs ps WHERE ps.playlist_id=p.id) AS song_count FROM playlists p ORDER BY p.title')->fetchAll();
+    }
     if ($id > 0) {
         $st = db()->prepare('SELECT * FROM playlists WHERE id=?');
         $st->execute([$id]);
@@ -26,6 +37,18 @@ $title = $plist ? $plist['title'] : 'Playlists'; include __DIR__ . '/includes/he
   <?php if ($error): ?><div class="card"><p style="color:#b91c1c"><b><?= e($error) ?></b></p></div><?php endif; ?>
 
   <?php if (!$plist): ?>
+    <div class="card no-print">
+      <form method="get" class="pickrow">
+        <span class="suggest-wrap">
+          <input type="text" name="q" data-suggest="playlist" placeholder="Type playlist name..." value="<?= e($q) ?>">
+        </span>
+        <button class="btn small" type="submit">Search</button>
+        <?php if ($q !== ''): ?><a class="btn small ghost" href="playlists.php">Clear</a><?php endif; ?>
+      </form>
+      <?php if ($q !== '' && !$playlists): ?>
+        <p class="hint" style="text-align:center;margin:8px 0 0">No playlist matches "<b><?= e($q) ?></b>".</p>
+      <?php endif; ?>
+    </div>
     <?php foreach ($playlists as $p): ?>
       <div class="card">
         <h3 style="margin:0"><a href="playlists.php?id=<?= (int)$p['id'] ?>"><?= e($p['title']) ?></a></h3>
