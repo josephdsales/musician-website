@@ -69,7 +69,10 @@ code.inline { background: var(--gold-soft); padding: 1px 6px; border-radius: 6px
 .transpose-bar b { min-width: 44px; text-align: center; font-size: 1.1rem; color: var(--gold-d); }
 .line { margin: 0 0 14px; }
 .line .chords { font-family: ui-monospace, Consolas, monospace; font-weight: 700; color: var(--gold-d); white-space: pre; min-height: 1.2em; }
-.line .lyrics { font-family: ui-monospace, Consolas, monospace; white-space: pre-wrap; }
+/* Lyrics stay side-by-side with chords (pre, not wrap) so alignment never breaks;
+   long lines scroll sideways inside the sheet instead of escaping the margin. */
+.line .lyrics { font-family: ui-monospace, Consolas, monospace; white-space: pre; }
+#sheetBody, #prevBody, #pb, div[id^="sheetBody"] { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .section { font-weight: 700; color: var(--gold-d); margin: 20px 0 10px; font-family: ui-monospace, monospace; letter-spacing: .1em; }
 
 /* --- Centered single-song view --- */
@@ -80,8 +83,18 @@ code.inline { background: var(--gold-soft); padding: 1px 6px; border-radius: 6px
 .sheet.centered h2, .sheet.centered .meta { text-align: center; }
 .sheet.centered .transpose-bar { justify-content: center; }
 .sheet.centered #sheetBody { text-align: center; }
-.sheet.centered .line { display: inline-block; text-align: left; min-width: min(100%, 420px); }
+.sheet.centered #sheetBody,
+.sheet.centered #prevBody,
+.sheet.centered #pb,
+.sheet.centered div[id^="sheetBody"] { display: inline-block; max-width: 100%; text-align: left; vertical-align: top; }
+.sheet.centered .line { display: block; min-width: 0; }
 .sheet.centered .section { text-align: center; }
+
+/* Smaller screens: slightly smaller chord font so fewer lines need scrolling */
+@media (max-width: 600px) {
+  .sheet { padding: 20px 14px; }
+  .line .chords, .line .lyrics { font-size: .82rem; }
+}
 
 /* --- Live search suggestions --- */
 .suggest-wrap { position: relative; flex: 1; min-width: 200px; display: flex; }
