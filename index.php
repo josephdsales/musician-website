@@ -11,8 +11,9 @@ try {
             $st = db()->prepare("SELECT id, title, artist FROM songs WHERE title ILIKE ? OR artist ILIKE ? ORDER BY title LIMIT 100");
             $st->execute(["%$q%", "%$q%"]);
         } else {
-            $st = db()->prepare("SELECT id, title, artist FROM songs WHERE title LIKE ? OR artist LIKE ? ORDER BY title LIMIT 100");
-            $st->execute(["%$q%", "%$q%"]);
+            $fts = '+'.str_replace([' ','+','-'], ' ', $q).'*';
+            $st = db()->prepare("SELECT id, title, artist FROM songs WHERE MATCH(title, artist) AGAINST(? IN BOOLEAN MODE) ORDER BY title LIMIT 100");
+            $st->execute([$fts]);
         }
         $list = $st->fetchAll();
     } else {
