@@ -59,7 +59,7 @@ function attachAutocomplete(input) {
   input.addEventListener('input', function () {
     var q = input.value.trim();
     clearTimeout(timer);
-    if (q.length < 2) { close(); return; }
+    if (q.length < 1) { close(); return; }
     timer = setTimeout(function () {
       lastQ = q;
       fetch('suggest.php?type=' + encodeURIComponent(type) + '&q=' + encodeURIComponent(q))
@@ -84,7 +84,7 @@ function attachAutocomplete(input) {
 
   input.addEventListener('blur', function () { setTimeout(close, 150); });
   input.addEventListener('focus', function () {
-    if (input.value.trim().length >= 2 && (items.length || true)) {
+    if (input.value.trim().length >= 1 && (items.length || true)) {
       // re-trigger fetch on focus if text present
       var ev = new Event('input');
       input.dispatchEvent(ev);
