@@ -21,7 +21,7 @@ $title = 'Songs'; include __DIR__ . '/includes/header.php';
   </div>
 
   <div class="card">
-    <h3 style="margin:0 0 8px;text-align:center" id="songCount">All songs (A-Z)</h3>
+    <h3 style="margin:0 0 8px;text-align:center" id="songCount"></h3>
     <div class="songlist" id="songList" style="max-height:none">
       <?php if ($list): ?>
         <?php $letter = ''; foreach ($list as $s): ?>
@@ -69,10 +69,10 @@ $title = 'Songs'; include __DIR__ . '/includes/header.php';
       }
       letters[j].style.display = hasVisible ? '' : 'none';
     }
-    if (q === '') {
-      countEl.textContent = 'All songs (A-Z)';
+    if (q !== '') {
+      countEl.textContent = '';
     } else {
-      countEl.textContent = visible + ' match(es) for "' + input.value.trim() + '"';
+      countEl.textContent = 'All songs (A–Z)';
     }
     noMatch.style.display = (q !== '' && visible === 0) ? 'block' : 'none';
   });
