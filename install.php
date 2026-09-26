@@ -17,6 +17,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($s === '') continue;
             db()->exec($s);
         }
+        // Ensure search indexes exist (CREATE TABLE IF NOT EXISTS won't add them to existing tables)
+        if (db_driver() === 'pgsql') {
+            db()->exec("CREATE EXTENSION IF NOT EXISTS pg_trgm");
+            db()->exec("CREATE INDEX IF NOT EXISTS idx_songs_artist ON songs(artist)");
+            db()->exec("CREATE INDEX IF NOT EXISTS idx_songs_title_gin ON songs USING gin(title gin_trgm_ops)");
+            db()->exec("CREATE INDEX IF NOT EXISTS idx_songs_artist_gin ON songs USING gin(artist gin_trgm_ops)");
+        } else {
+            foreach ([
+                "ALTER TABLE songs ADD INDEX idx_songs_artist (artist)",
+                "ALTER TABLE songs ADD FULLTEXT INDEX idx_songs_fulltext (title, artist)",
+            ] as $ddl) {
+                try { db()->exec($ddl); } catch (Throwable $ign) {}
+            }
+        }
         // Seed demo songs only if table is empty
         $c = (int)db()->query('SELECT COUNT(*) AS c FROM songs')->fetch()['c'];
         if ($c === 0) {
