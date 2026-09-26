@@ -29,10 +29,12 @@ try {
     } else {
         if (db_driver() === 'pgsql') {
             $st = db()->prepare("SELECT id, title, artist FROM songs WHERE title ILIKE ? OR artist ILIKE ? ORDER BY title LIMIT 8");
+            $st->execute(["%$q%", "%$q%"]);
         } else {
-            $st = db()->prepare("SELECT id, title, artist FROM songs WHERE title LIKE ? OR artist LIKE ? ORDER BY title LIMIT 8");
+            $fts = '+'.str_replace([' ','+','-'], ' ', $q).'*';
+            $st = db()->prepare("SELECT id, title, artist FROM songs WHERE MATCH(title, artist) AGAINST(? IN BOOLEAN MODE) ORDER BY title LIMIT 8");
+            $st->execute([$fts]);
         }
-        $st->execute(["%$q%", "%$q%"]);
         $out = [];
         foreach ($st->fetchAll() as $r) {
             $out[] = [
