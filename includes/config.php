@@ -7,7 +7,7 @@
 // Files can be redeployed any time; data is safe
 // because it lives in the database, not in files.
 // =============================================
-define('APP_NAME', 'Songbook');
+define('APP_NAME', 'MCC Songbook-JDS');
 define('BASE_URL', ''); // leave empty = auto-detect
 
 // Admin password: set ADMIN_PASSWORD env var on Render.
