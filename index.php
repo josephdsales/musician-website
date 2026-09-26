@@ -9,7 +9,7 @@ try {
     if ($q !== '') {
         if (db_driver() === 'pgsql') {
             $st = db()->prepare("SELECT id, title, artist FROM songs WHERE title ILIKE ? OR artist ILIKE ? ORDER BY title LIMIT 100");
-            $st->execute(["%$q%", "%$q%"]);
+            $st->execute(["$q%", "$q%"]);
         } else {
             if (mb_strlen($q) >= 3) {
                 $fts = '+'.str_replace([' ','+','-'], ' ', $q).'*';
