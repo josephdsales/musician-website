@@ -2,6 +2,7 @@
 // JSON suggestions for search boxes: ?type=song|playlist&q=...
 require __DIR__ . '/includes/config.php';
 require __DIR__ . '/includes/auth.php';
+require_member();
 header('Content-Type: application/json; charset=utf-8');
 
 $type = $_GET['type'] ?? 'song';
