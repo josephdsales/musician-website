@@ -16,7 +16,9 @@ CREATE TABLE IF NOT EXISTS songs (
   content TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  INDEX idx_songs_title (title)
+  INDEX idx_songs_title (title),
+  INDEX idx_songs_artist (artist),
+  FULLTEXT INDEX idx_songs_fulltext (title, artist)
 ) ENGINE=InnoDB;
 
 -- Demo songs (inserted only if table is empty - see install.php)

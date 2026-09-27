@@ -4,6 +4,8 @@
 -- Redeploying files never touches data.
 -- =============================================
 
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
 CREATE TABLE IF NOT EXISTS songs (
   id SERIAL PRIMARY KEY,
   title VARCHAR(200) NOT NULL,
@@ -16,6 +18,9 @@ CREATE TABLE IF NOT EXISTS songs (
 );
 
 CREATE INDEX IF NOT EXISTS idx_songs_title ON songs(title);
+CREATE INDEX IF NOT EXISTS idx_songs_artist ON songs(artist);
+CREATE INDEX IF NOT EXISTS idx_songs_title_gin ON songs USING gin(title gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS idx_songs_artist_gin ON songs USING gin(artist gin_trgm_ops);
 
 CREATE TABLE IF NOT EXISTS playlists (
   id SERIAL PRIMARY KEY,
