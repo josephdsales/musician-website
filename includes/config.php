@@ -17,6 +17,11 @@ function admin_password(): string {
     return ($p === false || $p === '') ? '123' : $p;
 }
 
+function site_password(): string {
+    $p = getenv('SITE_PASSWORD');
+    return ($p === false || $p === '') ? 'mcc123' : $p;
+}
+
 function db_driver(): string {
     if (getenv('DATABASE_URL')) return 'pgsql';
     return 'mysql';

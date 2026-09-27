@@ -6,8 +6,16 @@ function is_admin(): bool {
     return !empty($_SESSION['is_admin']);
 }
 
+function is_member(): bool {
+    return !empty($_SESSION['is_member']);
+}
+
 function require_admin(): void {
     if (!is_admin()) { header('Location: login.php'); exit; }
+}
+
+function require_member(): void {
+    if (!is_member() && !is_admin()) { header('Location: gate.php'); exit; }
 }
 
 function flash(string $key = 'msg'): ?string {
