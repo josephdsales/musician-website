@@ -9,7 +9,7 @@ $admin = is_admin();
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title><?= e($title) ?> | <?= e(APP_NAME) ?></title>
+<title><?= e(APP_NAME) ?></title>
 <link rel="stylesheet" href="assets/style.css">
 <script defer src="assets/transpose.js"></script>
 <script defer src="assets/autocomplete.js"></script>
