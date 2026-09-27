@@ -12,3 +12,5 @@ services:
         sync: false # Neon connection string, e.g. postgresql://user:pass@ep-xxx.neon.tech/songbook?sslmode=require
       - key: ADMIN_PASSWORD
         sync: false # admin password (default '123' if empty)
+      - key: SITE_PASSWORD
+        sync: false # site access password (default 'mcc123' if empty)

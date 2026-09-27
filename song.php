@@ -2,6 +2,7 @@
 // Public: single centered song with transpose. Opened from the A–Z list.
 require __DIR__ . '/includes/config.php';
 require __DIR__ . '/includes/auth.php';
+require_member();
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $current = null; $error = '';

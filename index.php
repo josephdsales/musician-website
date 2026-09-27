@@ -2,6 +2,7 @@
 // Public songbook home: search + A-Z song list only. Click opens song.php.
 require __DIR__ . '/includes/config.php';
 require __DIR__ . '/includes/auth.php';
+require_member();
 
 $list = []; $error = '';
 try {

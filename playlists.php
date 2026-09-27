@@ -2,6 +2,7 @@
 // Public: playlists — pick a playlist, view its songs in order with saved transpose.
 require __DIR__ . '/includes/config.php';
 require __DIR__ . '/includes/auth.php';
+require_member();
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $q = trim($_GET['q'] ?? '');
