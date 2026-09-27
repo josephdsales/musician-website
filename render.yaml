@@ -3,7 +3,7 @@
 # (paste your Neon connection string as DATABASE_URL in Render).
 services:
   - type: web
-    name: mccsongbook
+    name: musician-website
     runtime: docker
     plan: free
     healthCheckPath: /index.php
