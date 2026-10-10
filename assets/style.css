@@ -67,11 +67,11 @@ code.inline { background: var(--gold-soft); padding: 1px 6px; border-radius: 6px
 .sheet .meta { color: var(--muted); margin: 6px 0 14px; font-style: italic; }
 .transpose-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; background: var(--gold-soft); border: 1px solid #d9c795; padding: 10px 14px; border-radius: 999px; margin-bottom: 18px; }
 .transpose-bar b { min-width: 44px; text-align: center; font-size: 1.1rem; color: var(--gold-d); }
-.line { margin: 0 0 14px; }
-.line .chords { font-family: ui-monospace, Consolas, monospace; font-weight: 700; color: var(--gold-d); white-space: pre; min-height: 1.2em; }
+.line { margin: 0 0 14px; font-family: ui-monospace, Consolas, monospace; font-weight: 400; font-synthesis: none; font-kerning: none; font-variant-ligatures: none; letter-spacing: normal; word-spacing: normal; line-height: 1.4; -webkit-text-size-adjust: none; text-size-adjust: none; }
+.line .chords { font-weight: 400; color: var(--gold-d); -webkit-text-stroke: .4px currentColor; white-space: pre; min-height: 1.2em; }
 /* Lyrics stay side-by-side with chords (pre, not wrap) so alignment never breaks;
    long lines scroll sideways inside the sheet instead of escaping the margin. */
-.line .lyrics { font-family: ui-monospace, Consolas, monospace; white-space: pre; }
+.line .lyrics { white-space: pre; }
 #sheetBody, #prevBody, #pb, div[id^="sheetBody"] { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .section { font-weight: 700; color: var(--gold-d); margin: 20px 0 10px; font-family: ui-monospace, monospace; letter-spacing: .1em; }
 
