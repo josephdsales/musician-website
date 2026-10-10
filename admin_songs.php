@@ -94,7 +94,7 @@ $title = 'Manage Songs'; include __DIR__ . '/includes/header.php';
       <?php if ($edit['id']): ?>
       <h3>Preview</h3>
       <div class="sheet"><div id="prevBody" data-content="<?= e($edit['content']) ?>"></div></div>
-      <script>document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('prevBody');if(b&&window.renderSong)b.innerHTML=renderSong(b.getAttribute('data-content'),0);});</script>
+      <script>document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('prevBody');if(b&&window.renderSong){b.innerHTML=renderSong(b.getAttribute('data-content'),0);if(window.layoutChords)layoutChords(b);}});</script>
       <?php endif; ?>
     <?php else: ?>
       <p class="hint">Select <b>Edit</b> or <b>+ New song</b>.</p>

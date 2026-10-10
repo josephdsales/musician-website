@@ -89,6 +89,7 @@ $title = $plist ? $plist['title'] : 'Playlists'; include __DIR__ . '/includes/he
           var steps = saved;
           function draw() {
             body.innerHTML = renderSong(body.getAttribute('data-content'), steps);
+            layoutChords(body);
             document.getElementById('tVal' + k).textContent = (steps >= 0 ? '+' : '') + steps;
           }
           document.querySelector('[data-up="' + k + '"]').onclick = function () { steps++; draw(); };
