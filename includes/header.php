@@ -10,9 +10,9 @@ $admin = is_admin();
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= e(APP_NAME) ?></title>
-<link rel="stylesheet" href="assets/style.css">
-<script defer src="assets/transpose.js"></script>
-<script defer src="assets/autocomplete.js"></script>
+<link rel="stylesheet" href="assets/style.css?v=<?= @filemtime(__DIR__ . '/../assets/style.css') ?>">
+<script defer src="assets/transpose.js?v=<?= @filemtime(__DIR__ . '/../assets/transpose.js') ?>"></script>
+<script defer src="assets/autocomplete.js?v=<?= @filemtime(__DIR__ . '/../assets/autocomplete.js') ?>"></script>
 </head>
 <body>
 <header class="topbar">
