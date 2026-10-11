@@ -50,7 +50,7 @@ $title = $current ? $current['title'] : 'Song'; include __DIR__ . '/includes/hea
         var body = document.getElementById('sheetBody');
         function draw() {
           body.innerHTML = renderSong(body.getAttribute('data-content'), steps);
-          layoutChords(body);
+          if (window.layoutChords) layoutChords(body);
           document.getElementById('tVal').textContent = (steps >= 0 ? '+' : '') + steps;
         }
         document.getElementById('tUp').onclick = function () { steps++; draw(); };

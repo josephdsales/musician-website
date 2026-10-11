@@ -84,18 +84,25 @@ $title = $plist ? $plist['title'] : 'Playlists'; include __DIR__ . '/includes/he
       document.addEventListener('DOMContentLoaded', function () {
         var total = <?= count($items) ?>;
         for (var k = 1; k <= total; k++) (function (k) {
-          var body = document.getElementById('sheetBody' + k);
-          var saved = parseInt(body.getAttribute('data-steps') || '0', 10) || 0;
-          var steps = saved;
-          function draw() {
-            body.innerHTML = renderSong(body.getAttribute('data-content'), steps);
-            layoutChords(body);
-            document.getElementById('tVal' + k).textContent = (steps >= 0 ? '+' : '') + steps;
-          }
-          document.querySelector('[data-up="' + k + '"]').onclick = function () { steps++; draw(); };
-          document.querySelector('[data-down="' + k + '"]').onclick = function () { steps--; draw(); };
-          document.querySelector('[data-reset="' + k + '"]').onclick = function () { steps = saved; draw(); };
-          draw();
+          try {
+            var body = document.getElementById('sheetBody' + k);
+            if (!body || !window.renderSong) return;
+            var saved = parseInt(body.getAttribute('data-steps') || '0', 10) || 0;
+            var steps = saved;
+            var draw = function () {
+              body.innerHTML = renderSong(body.getAttribute('data-content'), steps);
+              if (window.layoutChords) layoutChords(body);
+              var val = document.getElementById('tVal' + k);
+              if (val) val.textContent = (steps >= 0 ? '+' : '') + steps;
+            };
+            var up = document.querySelector('[data-up="' + k + '"]');
+            var down = document.querySelector('[data-down="' + k + '"]');
+            var reset = document.querySelector('[data-reset="' + k + '"]');
+            if (up) up.onclick = function () { steps++; draw(); };
+            if (down) down.onclick = function () { steps--; draw(); };
+            if (reset) reset.onclick = function () { steps = saved; draw(); };
+            draw();
+          } catch (e) {}
         })(k);
       });
     </script>
