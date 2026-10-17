@@ -6,6 +6,20 @@ require_admin();
 
 $sel = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
+// Resulting key after transposition (same sharp convention as assets/transpose.js).
+function transposed_key(?string $orig, int $steps): string
+{
+    $orig = trim((string)$orig);
+    if (!preg_match('/^([A-G](?:#|b)?)(.*)$/', $orig, $m)) return '';
+    if ($steps === 0) return $orig;
+    $sharps = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    $flats  = ['Db' => 'C#', 'Eb' => 'D#', 'Gb' => 'F#', 'Ab' => 'G#', 'Bb' => 'A#'];
+    $root = $flats[$m[1]] ?? $m[1];
+    $i = array_search($root, $sharps, true);
+    if ($i === false) return $orig;
+    return $sharps[(($i + $steps) % 12 + 12) % 12] . $m[2];
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     check_csrf();
     $op = $_POST['op'] ?? '';
@@ -152,7 +166,11 @@ $title = 'Manage Playlists'; include __DIR__ . '/includes/header.php';
             <input type="hidden" name="playlist_id" value="<?= (int)$plist['id'] ?>">
             <input type="hidden" name="item_id" value="<?= (int)$it['id'] ?>">
             <label style="margin:0">Transpose</label>
-            <input type="number" name="transpose_steps" min="-11" max="11" value="<?= (int)$it['transpose_steps'] ?>" style="width:80px">
+            <input type="number" class="ts-input" name="transpose_steps" min="-11" max="11" value="<?= (int)$it['transpose_steps'] ?>" style="width:80px">
+            <?php $ok = trim((string)($it['original_key'] ?? '')); $ksteps = (int)$it['transpose_steps']; $kto = transposed_key($ok, $ksteps); ?>
+            <?php if ($ok !== '' && $kto !== ''): ?>
+            <span class="hint ts-key" data-orig="<?= e($ok) ?>" style="white-space:nowrap"><?= $ksteps !== 0 ? 'Key ' . e($ok) . ' → <b>' . e($kto) . '</b>' : 'Key ' . e($ok) ?></span>
+            <?php endif; ?>
             <button class="btn small" type="submit">Save</button>
           </form>
           <div class="btnrow">
@@ -196,4 +214,39 @@ $title = 'Manage Playlists'; include __DIR__ . '/includes/header.php';
     <?php endif; ?>
   </div>
 </div>
+<script>
+(function () {
+  function keyAfter(orig, steps) {
+    orig = String(orig || '').trim();
+    var m = orig.match(/^([A-G](?:#|b)?)(.*)$/);
+    if (!m) return '';
+    if (!steps) return orig;
+    var sharp = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    var flats = { Db: 'C#', Eb: 'D#', Gb: 'F#', Ab: 'G#', Bb: 'A#' };
+    var root = flats[m[1]] || m[1];
+    var i = sharp.indexOf(root);
+    if (i === -1) return orig;
+    return sharp[(((i + steps) % 12) + 12) % 12] + m[2];
+  }
+  document.addEventListener('input', function (e) {
+    var el = e.target;
+    if (!el || !el.classList || !el.classList.contains('ts-input')) return;
+    var span = el.parentElement ? el.parentElement.querySelector('.ts-key') : null;
+    if (!span) return;
+    var orig = span.getAttribute('data-orig') || '';
+    var steps = parseInt(el.value, 10) || 0;
+    var to = keyAfter(orig, steps);
+    if (!orig || !to) { span.textContent = ''; return; }
+    span.textContent = '';
+    if (steps) {
+      span.appendChild(document.createTextNode('Key ' + orig + ' \u2192 '));
+      var b = document.createElement('b');
+      b.textContent = to;
+      span.appendChild(b);
+    } else {
+      span.textContent = 'Key ' + orig;
+    }
+  });
+})();
+</script>
 <?php include __DIR__ . '/includes/footer.php'; ?>
