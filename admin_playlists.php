@@ -132,7 +132,10 @@ $title = 'Manage Playlists'; include __DIR__ . '/includes/header.php';
   </div>
   <div class="card">
     <?php if ($plist): ?>
-      <h3 style="margin-top:0"><?= e($plist['title']) ?> <span class="hint">(<?= count($items) ?> songs)</span></h3>
+      <h3 style="margin-top:0;display:flex;justify-content:space-between;align-items:center">
+        <span><?= e($plist['title']) ?> <span class="hint">(<?= count($items) ?> songs)</span></span>
+        <a class="btn small ghost" href="playlists.php?id=<?= (int)$plist['id'] ?>" target="_blank">View Playlist ↗</a>
+      </h3>
       <form method="post" class="pickrow">
         <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
         <input type="hidden" name="op" value="rename">
@@ -190,7 +193,6 @@ $title = 'Manage Playlists'; include __DIR__ . '/includes/header.php';
               <button class="btn small ghost move-btn" data-dir="up" type="button">↑ Up</button>
               <button class="btn small ghost move-btn" data-dir="down" type="button">↓ Down</button>
               <button class="btn small danger remove-btn" data-item-id="<?= (int)$it['id'] ?>" type="button">Remove</button>
-              <a class="btn small ghost" href="playlists.php?id=<?= (int)$plist['id'] ?>" target="_blank">View</a>
             </div>
           </div>
         <?php endforeach; ?>
