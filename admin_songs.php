@@ -63,7 +63,15 @@ $title = 'Manage Songs'; include __DIR__ . '/includes/header.php';
       <?php foreach ($songs as $s): ?>
       <tr>
         <td><b><?= e($s['title']) ?></b><br><span class="hint"><?= e($s['artist']) ?></span></td>
-        <td style="white-space:nowrap"><a class="btn small ghost" href="admin_songs.php?id=<?= (int)$s['id'] ?>&action=edit">Edit</a></td>
+        <td style="white-space:nowrap">
+          <a class="btn small ghost" href="admin_songs.php?id=<?= (int)$s['id'] ?>&action=edit">Edit</a>
+          <form method="post" style="display:inline" onsubmit="return confirm('Delete this song?')">
+            <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
+            <input type="hidden" name="op" value="delete">
+            <input type="hidden" name="id" value="<?= (int)$s['id'] ?>">
+            <button class="btn small danger" type="submit">Delete</button>
+          </form>
+        </td>
       </tr>
       <?php endforeach; ?>
       <?php if (!$songs): ?><tr><td colspan="2" class="hint">No songs yet.</td></tr><?php endif; ?>
