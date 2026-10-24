@@ -53,36 +53,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $st->execute([$pid, $sid, $n]);
             $sel = $pid;
             set_flash('Song added to playlist.');
-        } elseif ($op === 'save_item') {
-            $iid = (int)$_POST['item_id'];
-            $steps = max(-11, min(11, (int)$_POST['transpose_steps']));
-            $st = db()->prepare('UPDATE playlist_songs SET transpose_steps=? WHERE id=?');
-            $st->execute([$steps, $iid]);
-            $sel = (int)$_POST['playlist_id'];
-            set_flash('Transpose saved (' . ($steps >= 0 ? '+' : '') . $steps . ').');
+        } elseif ($op === 'save_playlist') {
+            $pid = (int)$_POST['playlist_id'];
+            $itemIds = $_POST['item_ids'] ?? [];
+            $transposes = $_POST['transpose'] ?? [];
+            
+            $pdo = db();
+            $pdo->beginTransaction();
+            try {
+                $sortOrder = 1;
+                $stUpdate = $pdo->prepare('UPDATE playlist_songs SET sort_order=?, transpose_steps=? WHERE id=? AND playlist_id=?');
+                foreach ($itemIds as $iid) {
+                    $iid = (int)$iid;
+                    if ($iid <= 0) continue;
+                    $steps = max(-11, min(11, (int)($transposes[$iid] ?? 0)));
+                    $stUpdate->execute([$sortOrder++, $steps, $iid, $pid]);
+                }
+                $pdo->commit();
+                $sel = $pid;
+                set_flash('Playlist saved.');
+            } catch (Throwable $e) {
+                $pdo->rollBack();
+                throw $e;
+            }
         } elseif ($op === 'remove_item') {
             $st = db()->prepare('DELETE FROM playlist_songs WHERE id=?');
             $st->execute([(int)$_POST['item_id']]);
             $sel = (int)$_POST['playlist_id'];
             set_flash('Song removed from playlist.');
-        } elseif ($op === 'move') {
-            $iid = (int)$_POST['item_id']; $pid = (int)$_POST['playlist_id'];
-            $dir = $_POST['dir'] ?? 'up';
-            $items = db()->prepare('SELECT id, sort_order FROM playlist_songs WHERE playlist_id=? ORDER BY sort_order, id');
-            $items->execute([$pid]);
-            $rows = $items->fetchAll();
-            $idx = null;
-            foreach ($rows as $i => $r) if ((int)$r['id'] === $iid) $idx = $i;
-            if ($idx !== null) {
-                $swap = $dir === 'up' ? $idx - 1 : $idx + 1;
-                if (isset($rows[$swap])) {
-                    $a = $rows[$idx]; $b = $rows[$swap];
-                    $u = db()->prepare('UPDATE playlist_songs SET sort_order=? WHERE id=?');
-                    $u->execute([$b['sort_order'], $a['id']]);
-                    $u->execute([$a['sort_order'], $b['id']]);
-                }
-            }
-            $sel = $pid;
         }
     } catch (Throwable $ex) {
         set_flash('Error: ' . $ex->getMessage());
@@ -156,52 +154,45 @@ $title = 'Manage Playlists'; include __DIR__ . '/includes/header.php';
         <button class="btn small" type="submit">Add</button>
       </form>
       <h3>Songs in order</h3>
-      <?php $pos = 1; foreach ($items as $it): ?>
-        <div class="card" style="margin:8px 0">
-          <b><?= $pos++ ?>. <?= e($it['title']) ?></b>
-          <span class="hint"><?= e(trim(($it['artist'] ?? '') . (!empty($it['original_key']) ? ' • Key ' . $it['original_key'] : ''))) ?></span>
-          <form method="post" class="pickrow" style="margin-top:8px">
-            <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
-            <input type="hidden" name="op" value="save_item">
-            <input type="hidden" name="playlist_id" value="<?= (int)$plist['id'] ?>">
-            <input type="hidden" name="item_id" value="<?= (int)$it['id'] ?>">
-            <label style="margin:0">Transpose</label>
-            <input type="number" class="ts-input" name="transpose_steps" min="-11" max="11" value="<?= (int)$it['transpose_steps'] ?>" style="width:80px">
-            <?php $ok = trim((string)($it['original_key'] ?? '')); $ksteps = (int)$it['transpose_steps']; $kto = transposed_key($ok, $ksteps); ?>
-            <?php if ($ok !== '' && $kto !== ''): ?>
-            <span class="hint ts-key" data-orig="<?= e($ok) ?>" style="white-space:nowrap"><?= $ksteps !== 0 ? 'Key ' . e($ok) . ' → <b>' . e($kto) . '</b>' : 'Key ' . e($ok) ?></span>
-            <?php endif; ?>
-            <button class="btn small" type="submit">Save</button>
-          </form>
-          <div class="btnrow">
-            <form method="post" style="display:inline">
-              <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
-              <input type="hidden" name="op" value="move">
-              <input type="hidden" name="playlist_id" value="<?= (int)$plist['id'] ?>">
-              <input type="hidden" name="item_id" value="<?= (int)$it['id'] ?>">
-              <input type="hidden" name="dir" value="up">
-              <button class="btn small ghost" type="submit">↑</button>
-            </form>
-            <form method="post" style="display:inline">
-              <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
-              <input type="hidden" name="op" value="move">
-              <input type="hidden" name="playlist_id" value="<?= (int)$plist['id'] ?>">
-              <input type="hidden" name="item_id" value="<?= (int)$it['id'] ?>">
-              <input type="hidden" name="dir" value="down">
-              <button class="btn small ghost" type="submit">↓</button>
-            </form>
-            <form method="post" style="display:inline" onsubmit="return confirm('Remove this song from the playlist?')">
-              <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
-              <input type="hidden" name="op" value="remove_item">
-              <input type="hidden" name="playlist_id" value="<?= (int)$plist['id'] ?>">
-              <input type="hidden" name="item_id" value="<?= (int)$it['id'] ?>">
-              <button class="btn small danger" type="submit">Remove</button>
-            </form>
-            <a class="btn small ghost" href="playlists.php?id=<?= (int)$plist['id'] ?>" target="_blank">View</a>
+      <?php if ($items): ?>
+      <form method="post" id="playlistForm">
+        <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
+        <input type="hidden" name="op" id="formOp" value="save_playlist">
+        <input type="hidden" name="playlist_id" value="<?= (int)$plist['id'] ?>">
+
+        <div id="songsList">
+        <?php foreach ($items as $it): ?>
+          <div class="card song-card" style="margin:8px 0" data-item-id="<?= (int)$it['id'] ?>">
+            <input type="hidden" name="item_ids[]" value="<?= (int)$it['id'] ?>">
+            <b><?= e($it['title']) ?></b>
+            <span class="hint"><?= e(trim(($it['artist'] ?? '') . (!empty($it['original_key']) ? ' • Key ' . $it['original_key'] : ''))) ?></span>
+            
+            <div class="pickrow" style="margin-top:8px">
+              <label style="margin:0">Transpose</label>
+              <input type="number" class="ts-input" name="transpose[<?= (int)$it['id'] ?>]" min="-11" max="11" value="<?= (int)$it['transpose_steps'] ?>" style="width:80px">
+              <?php $ok = trim((string)($it['original_key'] ?? '')); $ksteps = (int)$it['transpose_steps']; $kto = transposed_key($ok, $ksteps); ?>
+              <?php if ($ok !== '' && $kto !== ''): ?>
+              <span class="hint ts-key" data-orig="<?= e($ok) ?>" style="white-space:nowrap"><?= $ksteps !== 0 ? 'Key ' . e($ok) . ' → <b>' . e($kto) . '</b>' : 'Key ' . e($ok) ?></span>
+              <?php endif; ?>
+            </div>
+            
+            <div class="btnrow" style="margin-top:8px">
+              <button class="btn small ghost move-btn" data-dir="up" type="button">↑ Up</button>
+              <button class="btn small ghost move-btn" data-dir="down" type="button">↓ Down</button>
+              <button class="btn small danger remove-btn" data-item-id="<?= (int)$it['id'] ?>" type="button">Remove</button>
+              <a class="btn small ghost" href="playlists.php?id=<?= (int)$plist['id'] ?>" target="_blank">View</a>
+            </div>
           </div>
+        <?php endforeach; ?>
         </div>
-      <?php endforeach; ?>
-      <?php if (!$items): ?><p class="hint">Empty — add 4–5 songs above.</p><?php endif; ?>
+
+        <div class="btnrow" style="margin-top:16px">
+          <button class="btn" type="submit">Save Playlist Changes</button>
+        </div>
+      </form>
+      <?php else: ?>
+        <p class="hint">Empty — add songs above.</p>
+      <?php endif; ?>
       <hr>
       <form method="post" onsubmit="return confirm('Delete this playlist? Songs are kept.')">
         <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
@@ -228,6 +219,37 @@ $title = 'Manage Playlists'; include __DIR__ . '/includes/header.php';
     if (i === -1) return orig;
     return sharp[(((i + steps) % 12) + 12) % 12] + m[2];
   }
+  document.addEventListener('click', function (e) {
+    var removeBtn = e.target.closest('.remove-btn');
+    if (removeBtn) {
+      if (!confirm('Remove this song from the playlist?')) return;
+      var itemId = removeBtn.getAttribute('data-item-id');
+      var form = document.getElementById('playlistForm');
+      document.getElementById('formOp').value = 'remove_item';
+      var input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'item_id';
+      input.value = itemId;
+      form.appendChild(input);
+      form.submit();
+      return;
+    }
+    
+    var moveBtn = e.target.closest('.move-btn');
+    if (moveBtn) {
+      var card = moveBtn.closest('.song-card');
+      if (!card) return;
+      var dir = moveBtn.getAttribute('data-dir');
+      if (dir === 'up') {
+        var prev = card.previousElementSibling;
+        if (prev) card.parentNode.insertBefore(card, prev);
+      } else if (dir === 'down') {
+        var next = card.nextElementSibling;
+        if (next) card.parentNode.insertBefore(next, card);
+      }
+    }
+  });
+
   document.addEventListener('input', function (e) {
     var el = e.target;
     if (!el || !el.classList || !el.classList.contains('ts-input')) return;
