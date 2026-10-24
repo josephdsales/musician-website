@@ -169,7 +169,13 @@ $title = 'Manage Playlists'; include __DIR__ . '/includes/header.php';
             
             <div class="pickrow" style="margin-top:8px">
               <label style="margin:0">Transpose</label>
-              <input type="number" class="ts-input" name="transpose[<?= (int)$it['id'] ?>]" min="-11" max="11" value="<?= (int)$it['transpose_steps'] ?>" style="width:80px">
+              <select class="ts-input" name="transpose[<?= (int)$it['id'] ?>]" style="width:130px">
+                <?php for ($s = -11; $s <= 11; $s++): ?>
+                  <option value="<?= $s ?>" <?= $ksteps === $s ? 'selected' : '' ?>>
+                    <?= $s === 0 ? '0 (Original)' : ($s > 0 ? '+' . $s : $s) ?>
+                  </option>
+                <?php endfor; ?>
+              </select>
               <?php $ok = trim((string)($it['original_key'] ?? '')); $ksteps = (int)$it['transpose_steps']; $kto = transposed_key($ok, $ksteps); ?>
               <?php if ($ok !== '' && $kto !== ''): ?>
               <span class="hint ts-key" data-orig="<?= e($ok) ?>" style="white-space:nowrap"><?= $ksteps !== 0 ? 'Key ' . e($ok) . ' → <b>' . e($kto) . '</b>' : 'Key ' . e($ok) ?></span>
@@ -250,7 +256,7 @@ $title = 'Manage Playlists'; include __DIR__ . '/includes/header.php';
     }
   });
 
-  document.addEventListener('input', function (e) {
+  document.addEventListener('change', function (e) {
     var el = e.target;
     if (!el || !el.classList || !el.classList.contains('ts-input')) return;
     var span = el.parentElement ? el.parentElement.querySelector('.ts-key') : null;
